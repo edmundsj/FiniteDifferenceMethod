@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import lil_matrix
 from scipy.sparse.linalg import spsolve
 
 def gridToColumn(pointGrid):
@@ -10,19 +10,22 @@ def columnToGrid(pointColumn):
     return pointColumn.reshape(sideLength, sideLength)
 
 def Dxx(Nx):
-    baseMatrix = -2*np.identity(Nx*Nx)
-    np.fill_diagonal(baseMatrix[1:,:-1], 1) # fill the bottom half
-    np.fill_diagonal(baseMatrix[:-1, 1:], 1) # fill the top half
+    baseMatrix = lil_matrix((Nx*Nx, Nx*Nx))
+    baseMatrix.setdiag(-2)
+    baseMatrix.setdiag(1, k=1)
+    baseMatrix.setdiag(1, k=-1)
     for i in range(Nx-1):
         baseMatrix[(i+1)*Nx -1, (i+1)*Nx] = 0
         baseMatrix[(i+1)*Nx, (i+1)*Nx -1] = 0
-    return csr_matrix(baseMatrix)
+    return baseMatrix
 
 def Dyy(Nx):
-    baseMatrix = -2*np.identity(Nx*Nx)
-    np.fill_diagonal(baseMatrix[Nx:,:-1], 1)
-    np.fill_diagonal(baseMatrix[:-1,Nx:], 1)
-    return csr_matrix(baseMatrix)
+    baseMatrix = lil_matrix((Nx*Nx, Nx*Nx))
+    baseMatrix.setdiag(-2)
+    baseMatrix.setdiag(1, k=Nx)
+    baseMatrix.setdiag(1, k=-Nx)
+
+    return baseMatrix
 
 def Laplacian(Nx):
     return Dxx(Nx) + Dyy(Nx)

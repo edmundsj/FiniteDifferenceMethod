@@ -2,11 +2,11 @@ import unittest
 from UnitTesting.shorthand import *
 import numpy as np
 from FDM.source.matrices import *
-from scipy.sparse import csr_matrix, identity
+from scipy.sparse import csr_matrix, identity, lil_matrix
 
 class TestMatrices(unittest.TestCase):
     def testDxx(self):
-        desiredMatrix = csr_matrix(np.array([
+        desiredMatrix = lil_matrix(np.array([
         [-2., 1., 0., 0., 0., 0., 0., 0., 0.],
         [1., -2., 1., 0., 0., 0., 0., 0., 0.],
         [0., 1., -2., 0., 0., 0., 0., 0., 0.],
@@ -17,6 +17,7 @@ class TestMatrices(unittest.TestCase):
         [0., 0., 0., 0., 0., 0., 1., -2., 1.],
         [0., 0., 0., 0., 0., 0., 0., 1., -2]]))
         actualMatrix = Dxx(3)
+        print(actualMatrix - desiredMatrix)
         assertSparseArrayEqual(actualMatrix, desiredMatrix)
 
     def testDyy(self):
